@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,8 +22,19 @@ public final class NotificationService {
     public NotificationService(List<Notifier> channels, Priority threshold) {
         // TODO(4.1): validate — channels ห้าม null/มีสมาชิก null,
         //            threshold ห้าม null → throw IllegalArgumentException
+         if (channels == null) {
+            throw new IllegalArgumentException("channels ห้ามเป็น null");
+        }
+        for (Notifier n : channels) {
+            if (n == null) {
+                throw new IllegalArgumentException("channels ห้ามมีสมาชิกเป็น null");
+            }
+        }
+        if (threshold == null) {
+            throw new IllegalArgumentException("threshold ห้ามเป็น null");
+        }
         // TODO(4.2): ✗ เก็บลูกศรตรง ๆ เสี่ยง aliasing → defensive copy!
-        this.channels = channels;
+        this.channels = new ArrayList<>(channels);
         this.threshold = threshold;
     }
 
@@ -41,8 +53,17 @@ public final class NotificationService {
      */
     public boolean broadcast(String message, Priority priority) {
         // TODO(4.3): validate message (null/ว่าง) และ priority (null)
+         if (message == null || message.isBlank()) {
+            throw new IllegalArgumentException("message ห้าม null หรือว่าง");
+        }
+        if (priority == null) {
+            throw new IllegalArgumentException("priority ห้ามเป็น null");
+        }
         // TODO(4.4): ถ้า priority ต่ำกว่า threshold ให้ "ไม่ส่ง" และคืน false
         //            คำใบ้: ใช้ Priority.isAtLeast(...) ที่คุณเพิ่งเขียน
+         if (!priority.isAtLeast(threshold)) {
+            return false;
+        }
         for (Notifier n : channels) {
             n.send(message);    // polymorphism — ไม่สน concrete type เลย (OCP)
         }
